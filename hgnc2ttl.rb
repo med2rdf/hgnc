@@ -40,6 +40,9 @@ class HGNC2TTL
   def xref(db, ids, predicate = 'rdfs:seeAlso')
     if ids and not ids.empty?
       ids.gsub('"','').split('|').each do |id|
+        if db == "lrg"
+          next unless id[/^LRG_/]
+        end
         uri = "<http://identifiers.org/#{db}/#{id}>"
         puts triple(@subject, predicate, uri)
         puts triple(uri, "rdf:type", "<http://identifiers.org/#{db}>")
