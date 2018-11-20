@@ -27,7 +27,7 @@ class HGNC2TTL
   ]
 
   def label(str, prop = "rdfs:label")
-    puts triple(@subject, "rdfs:label", quote(str))
+    puts triple(@subject, prop, quote(str))
   end
 
   def description(str)
@@ -42,7 +42,7 @@ class HGNC2TTL
     str.gsub!('"', '')
     ary = str.split('|')
     ary.each do |item|
-      puts label(item, "skos:altLabel") unless item.empty?
+      label(item, "skos:altLabel") unless item.empty?
     end
   end
 
