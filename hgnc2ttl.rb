@@ -23,9 +23,10 @@ class HGNC2TTL
     ["@prefix", "rdf:", "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>"],
     ["@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"],
     ["@prefix", "dct:", "<http://purl.org/dc/terms/>"],
+    ["@prefix", "skos:", "<http://www.w3.org/2004/02/skos/core#>"],
   ]
 
-  def label(str)
+  def label(str, prop = "rdfs:label")
     puts triple(@subject, "rdfs:label", quote(str))
   end
 
@@ -35,6 +36,14 @@ class HGNC2TTL
 
   def reference(db, id)
     xref(db, id, "dct:references")
+  end
+
+  def alias_names(str)
+    str.gsub!('"', '')
+    ary = str.split('|')
+    ary.each do |item|
+      puts label(item, "skos:altLabel") unless item.empty?
+    end
   end
 
   def xref(db, ids, predicate = 'rdfs:seeAlso')
@@ -69,8 +78,8 @@ class HGNC2TTL
   5 status                       Approved
   6 location                     19q13.43
   7 location_sortable            19q13.43
-  8 alias_symbol                 
-  9 alias_name                   
+  8 alias_symbol                 FLJ23569
+  9 alias_name                   "NCRNA00181|A1BGAS|A1BG-AS"
  10 prev_symbol                  
  11 prev_name                    
  12 gene_family                  Immunoglobulin like domain containing
@@ -119,6 +128,8 @@ class HGNC2TTL
     @subject = "<http://identifiers.org/hgnc/#{ary[0].sub('HGNC:', '')}>"
     label(ary[1])
     description(ary[2])
+    alias_names(ary[8])
+    alias_names(ary[9])
     xref("ncbigene", ary[18])
     xref("ensembl", ary[19])
     xref("ena.embl", ary[22])
