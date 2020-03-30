@@ -24,14 +24,23 @@ class HGNC2TTL
     ["@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"],
     ["@prefix", "dct:", "<http://purl.org/dc/terms/>"],
     ["@prefix", "skos:", "<http://www.w3.org/2004/02/skos/core#>"],
+    ["@prefix", "m2r:", "<http://med2rdf.org/ontology/med2rdf#>"],
   ]
 
-  def label(str, prop = "rdfs:label")
-    puts triple(@subject, prop, quote(str))
+  def type(uri, predicate = "rdf:type")
+    puts triple(@subject, predicate, uri)
+  end
+
+  def label(str, predicate = "rdfs:label")
+    puts triple(@subject, predicate, quote(str))
   end
 
   def description(str)
     puts triple(@subject, "dct:description", quote(str))
+  end
+
+  def seealso(uri, predicate = "rdfs:seeAlso")
+    puts triple(@subject, predicate, uri)
   end
 
   def reference(db, id)
@@ -53,8 +62,8 @@ class HGNC2TTL
           next unless id[/^LRG_/]
         end
         uri = "<http://identifiers.org/#{db}/#{id}>"
-        puts triple(@subject, predicate, uri)
-        puts triple(uri, "rdf:type", "<http://identifiers.org/#{db}>")
+        seealso(uri)
+        type("<http://identifiers.org/#{db}>")
       end
     end
   end
@@ -126,6 +135,7 @@ class HGNC2TTL
   def parse_line(line)
     ary = line.strip.split("\t")
     @subject = "<http://identifiers.org/hgnc/#{ary[0].sub('HGNC:', '')}>"
+    type("m2r:Gene")
     label(ary[1])
     description(ary[2])
     alias_names(ary[8])
