@@ -36,12 +36,16 @@ class HGNC2TTL
     puts triple(@subject, "rdfs:label", quote(str))
   end
 
+  def identifier(str)
+    puts triple(@subject, "dct:identifier", quote(str))
+  end
+
   def description(str)
     puts triple(@subject, "dct:description", quote(str))
   end
 
   def location(str)
-    puts triple(@subject, "obo:so_part_of", quote(str))
+    puts triple(@subject, "obo:so_part_of", quote(str)) unless str.empty?
   end
 
   def alt_label(str)
@@ -73,6 +77,7 @@ class HGNC2TTL
       id_uri = "<http://identifiers.org/#{db}/#{id}>"
       puts triple(@subject, predicate, id_uri)
       puts triple(id_uri, "rdf:type", db_uri)
+      puts triple(id_uri, "dct:identifier", quote(id))
     end
   end
 
@@ -150,10 +155,12 @@ class HGNC2TTL
 
   def parse_line(line)
     ary = line.strip.split("\t")
-    @subject = "<http://identifiers.org/hgnc/#{ary[0].sub('HGNC:', '')}>"
+    id = ary[0].sub('HGNC:', '')
+    @subject = "<http://identifiers.org/hgnc/#{id}>"
     type("obo:SO_0000704")
     type("m2r:Gene")
     label(ary[1])
+    identifier(id)
     description(ary[2])
     location(ary[6])
     alt_label(ary[8])
@@ -161,6 +168,7 @@ class HGNC2TTL
     see_also("ncbigene", ary[18])
     see_also("ensembl", ary[19])
     see_also("ena.embl", ary[22])
+    see_also("insdc", ary[22])
     see_also("refseq", ary[23])
     see_also("ccds", ary[24])
     see_also("uniprot", ary[25])
