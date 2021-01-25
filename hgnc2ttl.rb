@@ -89,6 +89,10 @@ class HGNC2TTL
     end
   end
 
+  def status(str)
+    puts triple(@subject, "skos:historyNote", quote(str))
+  end
+
   def initialize(io)
     PREFIXES.each do |ary|
       puts triple(*ary)
@@ -149,9 +153,7 @@ class HGNC2TTL
  46 enzyme_id                    
  47 intermediate_filament_db     
  48 rna_central_ids              
-
 =end
-
 
   def parse_line(line)
     ary = line.strip.split("\t")
@@ -162,6 +164,7 @@ class HGNC2TTL
     label(ary[1])
     identifier(id)
     description(ary[2])
+    status(ary[5])
     location(ary[6])
     alt_label(ary[8])
     alt_label(ary[9])
