@@ -179,7 +179,7 @@ class HGNC2TTL
     see_also("mgi", ary[27])
     see_also("rgd", ary[28].sub('RGD:','')) if ary[28]
     see_also("lrg", ary[29])
-    see_also("omim", ary[31])
+    see_also("mim", ary[31])
     see_also("mirbase", ary[32])
     see_also("orphanet", ary[36])
     see_also("iuphar.receptor", ary[41])
