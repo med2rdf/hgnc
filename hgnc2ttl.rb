@@ -83,7 +83,7 @@ class HGNC2TTL
 
   def split_ids(ids)
     if ids and not ids.empty?
-      ids.gsub('"','').split('|')
+      ids.gsub('"','').split('|').map(&:strip)
     else
       []
     end
