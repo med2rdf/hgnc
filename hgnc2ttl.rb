@@ -102,12 +102,25 @@ class HGNC2TTL
       puts triple(*ary)
     end
     puts
+    @columns = column_index(io.gets)
     io.each_line do |line|
       parse_line(line)
     end
   end
 
+  def column_index(header)
+    header.strip.split("\t").each_with_index.to_h
+  end
+
+  def get(name, ary)
+    idx = @columns.fetch(name) { raise "HGNC header has no column: #{name}" }
+    ary[idx].to_s
+  end
+
 =begin
+  Columns are read by name. The header row is stored as a
+  name => index hash; the numbers below are only an example layout.
+
   0 hgnc_id                      HGNC:5
   1 symbol                       A1BG
   2 name                         alpha-1-B glycoprotein
@@ -165,39 +178,37 @@ class HGNC2TTL
 
   def parse_line(line)
     ary = line.strip.split("\t")
-    id = ary[0].sub('HGNC:', '')
+    id = get("hgnc_id", ary).sub('HGNC:', '')
     @subject = "<http://identifiers.org/hgnc/#{id}>"
     type("obo:SO_0000704")
     type("m2r:Gene")
-    label(ary[1])
+    label(get("symbol", ary))
     identifier(id)
-    description(ary[2])
-    status(ary[5])
-    location(ary[6])
-    alt_label(ary[7])
-    alt_label(ary[8])
-    see_also("ncbigene", ary[17])
-    see_also("ensembl", ary[18])
-    see_also("ena.embl", ary[21])
-    see_also("insdc", ary[21])
-    see_also("refseq", ary[22])
-    see_also("ccds", ary[23])
-    see_also("uniprot", ary[24])
-    reference("pubmed", ary[25])
-    see_also("mgi", ary[26])
-    see_also("rgd", ary[27].sub('RGD:','')) if ary[27]
-    see_also("lrg", ary[28])
-    see_also("mim", ary[30])
-    see_also("mirbase", ary[31])
-    see_also("orphanet", ary[35])
-    see_also("iuphar.receptor", ary[40])
-    see_also("ec-code", ary[45])
+    description(get("name", ary))
+    status(get("status", ary))
+    location(get("location", ary))
+    alt_label(get("alias_symbol", ary))
+    alt_label(get("alias_name", ary))
+    see_also("ncbigene", get("entrez_id", ary))
+    see_also("ensembl", get("ensembl_gene_id", ary))
+    see_also("ena.embl", get("ena", ary))
+    see_also("insdc", get("ena", ary))
+    see_also("refseq", get("refseq_accession", ary))
+    see_also("ccds", get("ccds_id", ary))
+    see_also("uniprot", get("uniprot_ids", ary))
+    reference("pubmed", get("pubmed_id", ary))
+    see_also("mgi", get("mgd_id", ary))
+    see_also("rgd", get("rgd_id", ary).sub('RGD:', ''))
+    see_also("lrg", get("lsdb", ary))
+    see_also("mim", get("omim_id", ary))
+    see_also("mirbase", get("mirbase", ary))
+    see_also("orphanet", get("orphanet", ary))
+    see_also("iuphar.receptor", get("iuphar", ary))
+    see_also("ec-code", get("enzyme_id", ary))
     puts
   end
 end
 
-
-header = ARGF.gets
 
 HGNC2TTL.new(ARGF)
 
